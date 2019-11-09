@@ -1,37 +1,48 @@
-#include "kmerDecoder.hpp"
+#include "listDecoder.hpp"
+#include "gzstream.h"
 
-void kmerDecoder::next_chunk(){
-    seqan::clear(this->ids);
-    seqan::clear(this->seqs);
-    this->kmers.clear();
-    seqan::readRecords(this->ids, this->seqs, this->seqFileIn, this->chunk_size);
-    this->seqan_end = seqan::atEnd(this->seqFileIn);
-    this->extractKmers();
-}
+namespace listDecoder {
 
-flat_hash_map<std::string,std::vector<kmer_row>>* kmerDecoder::getKmers(){
-    return &this->kmers;
-}
-
-void kmerDecoder::initialize_seqan(){
-
-    if (!seqan::open(this->seqFileIn, seqan::toCString(this->fileName)))
-    {
-        std::cerr << "ERROR: Could not open the file.\n";
-        exit(1);
+    Items::Items(const std::string &filename) {
+        this->filename = filename;
+        this->extractItems();
     }
 
-}
 
-bool kmerDecoder::end(){
-    return this->seqan_end;
-}
+    void Items::extractItems() {
 
-std::string kmerDecoder::get_filename(){
-    return this->fileName;
-}
+        std::string parent, child, metadata;
+        igzstream in(this->filename.c_str());
+
+        // skip first line
+        in >> parent >> child >> metadata;
+
+        while (in) {
+            in >> parent >> child >> metadata;
+            uint64_t childHash = this->child_hasher(child);
+
+            item_row itemRow;
+            itemRow.str = child;
+            itemRow.hash = childHash;
+
+            this->items[parent].emplace_back(itemRow);
+            this->hash_to_str[childHash] = child;
+
+        }
 
 
-kmerDecoder * kmerDecoder::initialize_hasher(int kmer_size, int hash_mode){
-    return new Kmers(kmer_size, hash_mode);
+    }
+
+    flat_hash_map<std::string, std::vector<item_row>> *kmerDecoder::getKmers() {
+        return &this->items;
+    }
+
+    void kmerDecoder::next_chunk() {
+        this->END = true;
+    }
+
+    bool kmerDecoder::end() {
+        return this->END;
+    }
+
 }
