@@ -19,9 +19,7 @@ void Items::extractItems(){
 
         this->kmers[parent].emplace_back(itemRow);
         this->hash_to_str[childHash] = child;
-
-        std::cout << "[!] " << parent << ":" << child << std::endl;
-
+        
     }
 
 }

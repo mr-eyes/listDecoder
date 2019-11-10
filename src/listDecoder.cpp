@@ -23,8 +23,3 @@ bool listDecoder::end(){
 std::string listDecoder::get_filename(){
     return this->fileName;
 }
-
-
-listDecoder * listDecoder::initialize_hasher(int kmer_size, int hash_mode){
-    return new Items(kmer_size, hash_mode);
-}
