@@ -1,44 +1,31 @@
 #include "listDecoder.hpp"
+#include "gzstream.h"
 
-void Items::seq_to_kmers(std::string & seq, std::vector <item_row> & kmers){
+void Items::extractItems(){
 
-    kmers.clear();
+    std::string parent, child, metadata;
+    igzstream in(this->filename.c_str());
 
-    kmers.reserve(seq.size());
+    // skip first line
+    in >> parent >> child >> metadata;
 
-    for (unsigned long i = 0; i < seq.size() - get_kSize() + 1; i++)
-        {
-            item_row kmer;
-            kmer.str = seq.substr(i, get_kSize());
-            kmer.hash = this->hasher->hash(kmer.str);
-            kmers.push_back(kmer);
-        }
+    while (in) {
+        in >> parent >> child >> metadata;
+        uint64_t childHash = this->child_hasher(child);
 
-}
+        item_row itemRow;
+        itemRow.str = child;
+        itemRow.hash = childHash;
 
-void Items::extractKmers(){
+        this->kmers[parent].emplace_back(itemRow);
+        this->hash_to_str[childHash] = child;
 
-    std::string id;
-    std::string seq;
-
-    for(unsigned seq_num = 0; seq_num < seqan::length(this->ids); seq_num++){
-
-        if(seqan::length(this->seqs[seq_num]) < this->get_kSize()) continue; 
-
-        seq = std::string((char*)seqan::toCString(this->seqs[seq_num]));
-        id =  std::string((char*)seqan::toCString(this->ids[seq_num]));
-
-        this->kmers[id].reserve(seq.size());
-
-        for (unsigned long i = 0; i < seq.size() - get_kSize() + 1; i++)
-        {
-            item_row kmer;
-            kmer.str = seq.substr(i, get_kSize());
-            kmer.hash = this->hasher->hash(kmer.str);
-            this->kmers[id].push_back(kmer);
-        }
+        std::cout << "[!] " << parent << ":" << child << std::endl;
 
     }
 
+}
 
+void Items::next_chunk(){
+   this->END = true;
 }

@@ -25,11 +25,11 @@ class listDecoder {
 
 
 protected:
-    
+
     unsigned int chunk_size;
     seqan::StringSet<seqan::CharString> ids;
     seqan::StringSet<seqan::CharString> seqs;
-    flat_hash_map<std::string, std::vector<item_row>> kmers;
+    flat_hash_map<std::string, std::vector<item_row>> kmers; //use
     std::string fileName;
     seqan::SeqFileIn seqFileIn;
 
@@ -37,7 +37,9 @@ protected:
 
     bool seqan_end = true;
 
-    virtual void extractKmers() = 0;
+    virtual void extractItems() = 0;
+
+    
 
     
 
@@ -57,13 +59,11 @@ public:
     bool canonical = true;
     std::string slicing_mode = "";
 
-    virtual void seq_to_kmers(std::string &seq, std::vector<item_row> &kmers) = 0;
-
     virtual int get_kSize() = 0;
 
     bool end();
 
-    void next_chunk();
+    
 
     std::string get_filename();
 
@@ -118,10 +118,25 @@ class Items : public listDecoder {
 
 private:
     
-    void extractKmers();
+    void extractItems();
+        // New
+
+    std::hash<std::string> child_hasher;
+    flat_hash_map<uint64_t, std::string> hash_to_str;
+    flat_hash_map<std::string, std::vector<std::string>> parent_to_children;
+//    std::string filename = "/home/mabuelanin/Desktop/dev-plan/decoder_casting/listDecoder/bin/sample.tsv";
+    std::string filename;
+    bool END = true;
 
 public:
     int kSize{};
+
+    void next_chunk();
+
+    Items(const std::string &filename) {
+        this->filename = filename;
+        this->extractItems();
+    }
 
     explicit Items(int k_size, int hash_mode = 1) : kSize(k_size) {
         this->hasher = new IntegerHasher(kSize);
@@ -164,9 +179,6 @@ public:
         }
 
     }
-
-
-    void seq_to_kmers(std::string &seq, std::vector<item_row> &kmers);
 
 
     int get_kSize() {

@@ -1,13 +1,6 @@
 #include "listDecoder.hpp"
 
-void listDecoder::next_chunk(){
-    seqan::clear(this->ids);
-    seqan::clear(this->seqs);
-    this->kmers.clear();
-    seqan::readRecords(this->ids, this->seqs, this->seqFileIn, this->chunk_size);
-    this->seqan_end = seqan::atEnd(this->seqFileIn);
-    this->extractKmers();
-}
+
 
 flat_hash_map<std::string,std::vector<item_row>>* listDecoder::getKmers(){
     return &this->kmers;
