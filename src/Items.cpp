@@ -27,3 +27,7 @@ void Items::extractItems(){
 void Items::next_chunk(){
    this->END = true;
 }
+
+bool Items::end(){
+    return this->END;
+}

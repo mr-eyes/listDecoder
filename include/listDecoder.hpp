@@ -21,8 +21,8 @@ struct item_row {
 --------------------------------------------------------
 */
 
-class listDecoder {
 
+class listDecoder {
 
 protected:
 
@@ -46,13 +46,13 @@ public:
 
     int hash_mode = 0;
     bool canonical = true;
-    std::string slicing_mode = "";
+    
 
     virtual int get_kSize() = 0;
 
-    bool end();
-
+    virtual bool end() = 0;
     
+    virtual void next_chunk() = 0;
 
     std::string get_filename();
 
@@ -75,15 +75,17 @@ private:
     std::hash<std::string> child_hasher;
     flat_hash_map<uint64_t, std::string> hash_to_str;
     flat_hash_map<std::string, std::vector<std::string>> parent_to_children;
+    std::string slicing_mode = "items";
 
     std::string filename;
-    bool END = true;
+    bool END = false;
 
 public:
     int kSize = 32;
 
-    void next_chunk();
+    
 
+    
     Items(const std::string &filename) {
         this->filename = filename;
         this->extractItems();
@@ -104,5 +106,10 @@ public:
     std::string ihash_kmer(const uint64_t &item_hash) {
         return this->hash_to_str[item_hash];
     }
+
+    bool end();
+    
+    void next_chunk();
+
 
 };
