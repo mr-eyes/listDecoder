@@ -64,7 +64,5 @@ target_include_directories(listDecoder INTERFACE ${PHMAP_INCLUDE_DIRS} ${CMAKE_C
 target_link_libraries(listDecoder z)
 
 
-
-add_subdirectory(lib/kmerDecoder)
 message("Building listDecoder binaries")
 add_subdirectory(bin)
