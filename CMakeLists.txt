@@ -43,6 +43,7 @@ file(GLOB SOURCES
         "${PROJECT_SOURCE_DIR}/src/KD_kmers.cpp"
         "${PROJECT_SOURCE_DIR}/src/KD_skipmers.cpp"
         "${PROJECT_SOURCE_DIR}/src/KD_minimizers.cpp"
+        "${PROJECT_SOURCE_DIR}/src/items.cpp"
         "${PROJECT_SOURCE_DIR}/src/HashUtils/hashutil.cpp"
         "${PROJECT_SOURCE_DIR}/src/Utils/kmer.cpp"
 )
@@ -52,8 +53,12 @@ set(KMERDECODER_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 include_directories(${PHMAP_INCLUDE_DIRS})
+include_directories(lib/gzstream)
 
 
 add_library(kmerDecoder STATIC ${SOURCES})
 target_include_directories(kmerDecoder INTERFACE ${PHMAP_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/seqan/include ${KMERDECODER_INCLUDE_DIRS})
 target_link_libraries(kmerDecoder z)
+
+message("Building kmerDecoder binaries")
+add_subdirectory(bin)

@@ -106,10 +106,67 @@ public:
 
 /* 
 --------------------------------------------------------
-                        Default Kmers
+                        Custom Items (new..)
 --------------------------------------------------------
 */
 
+
+class Items : public kmerDecoder {
+
+private:
+
+    void extractKmers();
+
+    std::hash<std::string> child_hasher;
+    flat_hash_map<uint64_t, std::string> hash_to_str;
+    flat_hash_map<std::string, std::vector<std::string>> parent_to_children;
+    std::string slicing_mode = "items";
+
+    std::string filename;
+    bool END = false;
+
+public:
+    int kSize = 32;
+
+    void setHashingMode(int hash_mode, bool canonical = true);
+    void seq_to_kmers(std::string &seq, std::vector<kmer_row> &kmers);
+
+
+
+
+    Items(const std::string &filename) {
+        this->filename = filename;
+        this->extractKmers();
+    }
+
+
+    int get_kSize() {
+        return this->kSize;
+    }
+
+
+    // hash single item
+    uint64_t hash_kmer(const std::string &item_str) {
+        return this->child_hasher(item_str);
+    }
+
+    // Inverse hash single item
+    std::string ihash_kmer(const uint64_t &item_hash) {
+        return this->hash_to_str[item_hash];
+    }
+
+    bool end();
+
+    void next_chunk();
+
+
+};
+
+/*
+--------------------------------------------------------
+                        Default Kmers
+--------------------------------------------------------
+*/
 
 class Kmers : public kmerDecoder {
 
