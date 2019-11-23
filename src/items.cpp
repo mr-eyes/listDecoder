@@ -1,25 +1,28 @@
 #include "kmerDecoder.hpp"
 #include "gzstream.h"
+#include <sstream>
 
 void Items::extractKmers(){
 
     std::string parent, child, metadata;
     igzstream in(this->filename.c_str());
 
+    std::string line;
+
     // skip first line
-    in >> parent >> child >> metadata;
+    std::getline(in, line);
 
-    while (in) {
-        in >> parent >> child >> metadata;
+    while(std::getline(in, line)){
+        std::stringstream   linestream(line);
+        std::getline(linestream, parent, '\t');
+        linestream >> child >> metadata;
+
         uint64_t childHash = this->child_hasher(child);
-
         kmer_row itemRow;
         itemRow.str = child;
         itemRow.hash = childHash;
-
         this->kmers[parent].emplace_back(itemRow);
         this->hash_to_str[childHash] = child;
-
     }
 
 }
