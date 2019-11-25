@@ -131,8 +131,9 @@ public:
     void setHashingMode(int hash_mode, bool canonical = true);
     void seq_to_kmers(std::string &seq, std::vector<kmer_row> &kmers);
 
+    Items() {
 
-
+    }
 
     Items(const std::string &filename) {
         this->filename = filename;
