@@ -111,6 +111,45 @@ public:
 */
 
 
+
+
+class CSVRow
+{
+    public:
+        std::string const& operator[](std::size_t index) const
+        {
+            return m_data[index];
+        }
+        std::size_t size() const
+        {
+            return m_data.size();
+        }
+        void readNextRow(std::istream& str)
+        {
+            std::string         line;
+            std::getline(str, line);
+
+            std::stringstream   lineStream(line);
+            std::string         cell;
+
+            m_data.clear();
+            while(std::getline(lineStream, cell, '\t'))
+            {
+                m_data.push_back(cell);
+            }
+            // This checks for a trailing comma with no data after it.
+            if (!lineStream && cell.empty())
+            {
+                // If there was a trailing comma then add an empty element.
+                m_data.push_back("");
+            }
+        }
+    private:
+        std::vector<std::string>    m_data;
+};
+
+
+
 class Items : public kmerDecoder {
 
 private:
@@ -127,6 +166,8 @@ private:
 
 public:
     int kSize = 32;
+    CSVRow row;
+    ifstream file;
 
     void setHashingMode(int hash_mode, bool canonical = true);
     void seq_to_kmers(std::string &seq, std::vector<kmer_row> &kmers);
@@ -135,10 +176,7 @@ public:
 
     }
 
-    Items(const std::string &filename) {
-        this->filename = filename;
-        this->extractKmers();
-    }
+    Items(const std::string &filename);
 
 
     int get_kSize() {

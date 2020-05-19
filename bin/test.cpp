@@ -25,9 +25,9 @@ void dump(kmerDecoder * KD){
         KD->next_chunk();
 
         for (const auto &seq : *KD->getKmers()) {
-            std::cout << "Read ID: " << seq.first << std::endl;
+            // std::cout << "Read ID: " << seq.first << std::endl;
             for (const auto &kmer : seq.second) {
-                std::cout << kmer.str << ": " << kmer.hash << std::endl;
+                std::cout << seq.first << '\t' << kmer.str << '\t' << kmer.hash << std::endl;
             }
         }
     }
