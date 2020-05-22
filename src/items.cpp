@@ -9,23 +9,22 @@ std::istream& operator>>(std::istream& str, CSVRow& data)
     return str;
 }
 
-Items::Items(const std::string &filename) {
-        this->chunk_size = 1; // To allow duplicate parents
+Items::Items(const std::string &filename, int chunk_size) {
+        this->chunk_size = chunk_size; // To allow duplicate parents
+        cerr << "chunkSize = " << this->chunk_size << endl;
         this->filename = filename;
         file = ifstream(this->filename);
         // Skip header
         file >> row;
+        this->seqan_end = false;
 }
 
 void Items::extractKmers(){
-    this->next_chunk();
-}
+    this->kmers.clear();
 
-void Items::next_chunk(){
-    
     std::string parent, child, metadata;
-
-    for(int i = 0; i < this->chunk_size && this->file.peek() != EOF; i++)
+    int i = 0;
+    for(; i < this->chunk_size && this->file.peek() != EOF; i++)
     {
         this->file >> row;
         parent = row[0];
@@ -37,18 +36,19 @@ void Items::next_chunk(){
         itemRow.hash = childHash;
         this->kmers[parent].emplace_back(itemRow);
         this->hash_to_str[childHash] = child;
-
     }
 
-    if(this->kmers.size() < this->chunk_size){
+    if(i < this->chunk_size){
         this->END = true;
         this->seqan_end = true;
         this->file.close();
     }else{
-        this->END = false;
         this->seqan_end = false;
     }
+}
 
+void Items::next_chunk(){
+        this->extractKmers();
 }
 
 bool Items::end(){

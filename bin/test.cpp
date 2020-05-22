@@ -13,7 +13,9 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    kmerDecoder *KD = new Items(argv[1]);
+    int chunk_size = 1;
+
+    kmerDecoder *KD = new Items(argv[1], chunk_size);
 
     dump(KD);
 

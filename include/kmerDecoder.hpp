@@ -60,7 +60,7 @@ public:
 
     bool end();
 
-    void next_chunk();
+    virtual void next_chunk() = 0;
 
     std::string get_filename();
 
@@ -169,6 +169,8 @@ public:
     CSVRow row;
     ifstream file;
 
+    void next_chunk();
+
     void setHashingMode(int hash_mode, bool canonical = true);
     void seq_to_kmers(std::string &seq, std::vector<kmer_row> &kmers);
 
@@ -176,7 +178,7 @@ public:
 
     }
 
-    Items(const std::string &filename);
+    Items(const std::string &filename, int chunk_size);
 
 
     int get_kSize() {
@@ -195,8 +197,6 @@ public:
     }
 
     bool end();
-
-    void next_chunk();
 
 
 };
@@ -235,6 +235,15 @@ public:
         this->hash_mode = 1;
         this->canonical = true;
         this->slicing_mode = "kmers";
+    }
+
+    void next_chunk(){
+        seqan::clear(this->ids);
+        seqan::clear(this->seqs);
+        this->kmers.clear();
+        seqan::readRecords(this->ids, this->seqs, this->seqFileIn, this->chunk_size);
+        this->seqan_end = seqan::atEnd(this->seqFileIn);
+        this->extractKmers();
     }
 
     void setHashingMode(int hash_mode, bool canonical = true) {
@@ -303,6 +312,15 @@ public:
         this->hash_mode = 1;
         this->canonical = true;
         this->slicing_mode = "skipmers";
+    }
+
+    void next_chunk(){
+        seqan::clear(this->ids);
+        seqan::clear(this->seqs);
+        this->kmers.clear();
+        seqan::readRecords(this->ids, this->seqs, this->seqFileIn, this->chunk_size);
+        this->seqan_end = seqan::atEnd(this->seqFileIn);
+        this->extractKmers();
     }
 
     Skipmers(const std::string &filename, unsigned int chunk_size, uint8_t m, uint8_t n, uint8_t k, int ORF = 0) {
@@ -426,6 +444,15 @@ public:
         this->canonical = true;
         this->slicing_mode = "minimizers";
     }
+
+    void next_chunk(){
+            seqan::clear(this->ids);
+            seqan::clear(this->seqs);
+            this->kmers.clear();
+            seqan::readRecords(this->ids, this->seqs, this->seqFileIn, this->chunk_size);
+            this->seqan_end = seqan::atEnd(this->seqFileIn);
+            this->extractKmers();
+        }
 
     Minimizers(int k, int w) {
         this->k = k;
