@@ -25,7 +25,7 @@ void Items::next_chunk(){
     
     std::string parent, child, metadata;
 
-    for(int i = 0; i < this->chunk_size && this->file.peek() != EOF; i++)
+    while(this->file.peek() != EOF)
     {
         this->file >> row;
         parent = row[0];
